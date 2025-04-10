@@ -2,6 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
+const emailRoutes = require("./routes/emailRoutes");
 const cors = require("cors");
 
 dotenv.config();
@@ -9,29 +11,41 @@ const app = express();
 
 // CORS middleware
 app.use(cors({
-    origin: "*",
+    origin: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    allowedOrigins: ["http://localhost:3000", "https://buziak.online"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With", "X-User-Email"],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204
 }));
 
-// Обработка preflight запросов
-app.options("*", cors());
-
-// Middlewares
+// Body parser middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Логирование запросов
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log('Body:', req.body);
+    }
     next();
 });
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/email", emailRoutes);
+
+// Обработка ошибок
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Что-то пошло не так!');
+});
 
 // Запуск
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5002;
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Сервер запущен на порту ${PORT}`);
