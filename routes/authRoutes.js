@@ -3,6 +3,7 @@ const router = express.Router();
 const { google } = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 const dotenv = require('dotenv');
+const authController = require('../controllers/authController');
 
 // Загрузка переменных окружения
 dotenv.config();
@@ -81,22 +82,7 @@ router.get('/', (req, res) => {
 });
 
 // Роут для инициализации OAuth потока
-router.get('/google', (req, res) => {
-  try {
-    const authUrl = oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: ['https://www.googleapis.com/auth/gmail.send'],
-      prompt: 'consent',
-      include_granted_scopes: true
-    });
-    
-    console.log('Сгенерирован URL авторизации:', authUrl);
-    res.redirect(authUrl);
-  } catch (error) {
-    console.error('Ошибка при генерации URL авторизации:', error);
-    res.status(500).send('Ошибка при генерации URL авторизации');
-  }
-});
+router.get('/google', authController.getAuthUrl);
 
 // Тестовый роут для проверки callback URL
 router.get('/test-callback', (req, res) => {
@@ -114,73 +100,7 @@ const generateAuthUrl = () => {
 };
 
 // Роут для отображения URL авторизации
-router.get('/google/callback', (req, res) => {
-  try {
-    const authUrl = generateAuthUrl();
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Gmail API Authorization URL</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              margin: 0;
-              background-color: #f5f5f5;
-            }
-            .container {
-              text-align: center;
-              padding: 20px;
-              background-color: white;
-              border-radius: 8px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-              max-width: 800px;
-            }
-            .url-box {
-              background-color: #f8f9fa;
-              padding: 15px;
-              border-radius: 4px;
-              word-break: break-all;
-              margin: 20px 0;
-              text-align: left;
-              font-family: monospace;
-            }
-            .button {
-              background-color: #4285f4;
-              color: white;
-              padding: 12px 24px;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              font-size: 16px;
-              text-decoration: none;
-              display: inline-block;
-              margin-top: 20px;
-            }
-            .button:hover {
-              background-color: #357abd;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>URL для авторизации Gmail API</h1>
-            <p>Используйте следующий URL для авторизации:</p>
-            <div class="url-box">${authUrl}</div>
-            <a href="${authUrl}" class="button">Перейти к авторизации</a>
-          </div>
-        </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error('Ошибка при генерации URL авторизации:', error);
-    res.status(500).send('Ошибка при генерации URL авторизации');
-  }
-});
+router.get('/google/callback', authController.handleGoogleCallback);
 
 // Роут для обработки кода авторизации
 router.get('/google/callback/auth', async (req, res) => {

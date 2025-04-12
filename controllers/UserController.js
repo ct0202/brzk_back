@@ -7,10 +7,17 @@ const sendEmail = require("../utils/sendEmail");
 exports.register = async (req, res) => {
   try {
     const { name, phone, email, password, gender } = req.body;
-    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    
+    // Проверяем существование email
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email уже занят" });
+    }
 
-    if (existingUser) {
-      return res.status(400).json({ message: "Email или телефон уже занят" });
+    // Проверяем существование телефона
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ message: "Телефон уже занят" });
     }
 
     const user = new User({ name, phone, email, password, gender });
