@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const photoRoutes = require("./routes/photoRoutes");
 const cors = require("cors");
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/profile/photos", photoRoutes);
 
 // Обработка ошибок
 app.use((err, req, res, next) => {

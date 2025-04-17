@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.json({ token });
+    res.json({ token, user });  
   } catch (err) {
     res.status(500).json({ message: "Ошибка сервера", error: err.message });
   }
@@ -75,6 +75,16 @@ exports.forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Ошибка сервера", error: err.message });
   }
 };
+
+// exports.updateProfile = async (req, res) => {
+//   try {
+//     const { update, data } = req.body;
+
+//     const user = await User.findByIdAndUpdate(req.user._id, { name, phone, email, password, gender }, { new: true });
+
+//     res.json({ message: "Профиль успешно обновлён" });
+//   }
+// }
 
 // Сброс пароля
 exports.resetPassword = async (req, res) => {
