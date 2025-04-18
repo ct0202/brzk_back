@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     gender: { type: String, enum: ["male", "female"], required: true },
     birthDay: { type: Date },
+    isAdmin: { type: Boolean, default: false },
+    age: { type: Number },
 
     // Геолокация
     country: { type: String },
@@ -29,12 +31,19 @@ const userSchema = new mongoose.Schema(
             message: 'Массив фотографий должен содержать ровно 9 элементов'
         }
     },
+    photoUrls: [{
+        position: Number,
+        url: String,
+        key: String
+    }],
+    verificationPhoto: { type: String, default: null },
     verified: { type: Boolean, default: false },
 
     // Настройки
     whoSeesMyProfile: { type: String, enum: ["GIRL", "MAN", "ALL"] },
     language: { type: String, enum: ["EN", "PL"] },
     lookingFor: { type: String, enum: ["GIRL", "MAN"] },
+    purpose: { type: String },
     showOnlyWithPhoto: { type: Boolean, default: false },
 
     // Безопасность

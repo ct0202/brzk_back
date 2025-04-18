@@ -5,7 +5,12 @@ const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const photoRoutes = require("./routes/photoRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const cors = require("cors");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+const path = require("path");
 
 dotenv.config();
 const app = express();
@@ -14,7 +19,7 @@ const app = express();
 app.use(cors({
     origin: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedOrigins: ["http://localhost:3000", "https://buziak.online"],
+    allowedOrigins: ["http://localhost:3000", "https://buziak.online", "http://localhost:5173"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With", "X-User-Email"],
     credentials: true,
     preflightContinue: false,
@@ -24,6 +29,10 @@ app.use(cors({
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+
+// Отдача статических файлов
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Логирование запросов
 app.use((req, res, next) => {
@@ -34,16 +43,19 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/profile/photos", photoRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/admin", adminRoutes);
+
 
 // Обработка ошибок
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Что-то пошло не так!');
+    res.status(500).json({ message: "Что-то пошло не так!" });
 });
 
 // Запуск
